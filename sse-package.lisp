@@ -29,7 +29,7 @@
   #+sbcl
   (:import-from #:SB-C
                 #:SPLICE-FUN-ARGS #:EXTRACT-FUN-ARGS
-                #:%DEFTRANSFORM #:COMMUTATIVE-ARG-SWAP #:DX-SAFE
+                #:%DEFTRANSFORM #:DX-SAFE
                 #:GIVE-UP-IR1-TRANSFORM #:ABORT-IR1-TRANSFORM
                 #:INSERT-ARRAY-BOUNDS-CHECKS #:VECTOR-LENGTH
                 #:ASSERT-ARRAY-RANK #:ASSERT-LVAR-TYPE

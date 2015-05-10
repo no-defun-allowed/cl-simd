@@ -93,6 +93,14 @@
  |    HELPER FUNCTIONS & MACROS    |
  |---------------------------------|#
 
+(deftransform commutative-arg-swap ((x y) * * :defun-only t :node node)
+  (if (and (constant-lvar-p x)
+           (not (constant-lvar-p y)))
+      `(,(lvar-fun-name (basic-combination-fun node))
+        (truly-the ,(lvar-type y) y)
+        ,(lvar-value x))
+      (give-up-ir1-transform)))
+
 (defmacro def-utility (name args rtype &body code)
   `(progn
      (export ',name)
@@ -143,8 +151,8 @@
 (defmacro def-not-cmp-pairs (not-fun &rest pairs)
   `(progn
      ,@(loop for (a b) on pairs by #'cddr
-          collect `(def-splice-transform ,not-fun ((,a arg1 arg2)) (,b arg1 arg2))
-          collect `(def-splice-transform ,not-fun ((,b arg1 arg2)) (,a arg1 arg2)))))
+             collect `(def-splice-transform ,not-fun ((,a arg1 arg2)) (,b arg1 arg2))
+             collect `(def-splice-transform ,not-fun ((,b arg1 arg2)) (,a arg1 arg2)))))
 
 #|---------------------------------|
  |           CPU CONTROL           |
@@ -221,7 +229,7 @@
 (def-utility />=-ps (x y) float-sse-pack (/<=-ps y x))
 
 (def-not-cmp-pairs not-ps
-    =-ps /=-ps <-ps /<-ps <=-ps /<=-ps >-ps />-ps >=-ps />=-ps cmpord-ps cmpunord-ps)
+  =-ps /=-ps <-ps /<-ps <=-ps /<=-ps >-ps />-ps >=-ps />=-ps cmpord-ps cmpunord-ps)
 
 ;; Shuffle
 
@@ -305,7 +313,7 @@
 (def-utility />=-pd (x y) double-sse-pack (/<=-pd y x))
 
 (def-not-cmp-pairs not-pd
-    =-pd /=-pd <-pd /<-pd <=-pd /<=-pd >-pd />-pd >=-pd />=-pd cmpord-pd cmpunord-pd)
+  =-pd /=-pd <-pd /<-pd <=-pd /<=-pd >-pd />-pd >=-pd />=-pd cmpord-pd cmpunord-pd)
 
 ;; Shuffle
 
@@ -359,13 +367,13 @@
 
 (macrolet ((defset (name rname setter type depth)
              (let* ((names (loop for i from 0 below (ash 1 depth)
-                              collect (symbolicate (format nil "X~A" i))))
+                                 collect (symbolicate (format nil "X~A" i))))
                     (funcs #(unpacklo-pi64 unpacklo-pi32 unpacklo-pi16 unpacklo-pi8))
                     (body (loop for i downfrom depth to 0
-                             for bv = (mapcar (lambda (x) `(,setter (the ,type ,x))) names)
-                             then (loop for (a b) on bv by #'cddr
-                                     collect `(,(svref funcs i) ,a ,b))
-                             finally (return (first bv)))))
+                                for bv = (mapcar (lambda (x) `(,setter (the ,type ,x))) names)
+                                  then (loop for (a b) on bv by #'cddr
+                                             collect `(,(svref funcs i) ,a ,b))
+                                finally (return (first bv)))))
                `(progn
                   (export ',name)
                   (export ',rname)
