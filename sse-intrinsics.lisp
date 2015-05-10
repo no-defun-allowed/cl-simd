@@ -466,6 +466,7 @@
 (def-load-intrinsic mem-ref-api int-sse-pack movdqa "_mm_load_si128")
 
 (def-load-intrinsic mem-ref-si64 int-sse-pack movd "_mm_loadl_epi64")
+(def-load-intrinsic mem-ref-streaming int-sse-pack movntdqa "_mm_stream_load_si128")
 
 (def-store-intrinsic mem-set-pi int-sse-pack movdqu "_mm_storeu_si128" :setf-name mem-ref-pi)
 (def-store-intrinsic mem-set-api int-sse-pack movdqa "_mm_store_si128" :setf-name mem-ref-api)
@@ -542,6 +543,9 @@
 (def-binary-intrinsic max-pi16   int-sse-pack pmaxsw 1 "_mm_max_epi16" :commutative t)
 (def-binary-intrinsic min-pu8    int-sse-pack pminub 1 "_mm_min_epu8" :commutative t)
 (def-binary-intrinsic min-pi16   int-sse-pack pminsw 1 "_mm_min_epi16" :commutative t)
+
+(def-binary-intrinsic max-pu16   int-sse-pack pmaxuw 1 "_mm_max_epu16" :commutative t)
+(def-binary-intrinsic min-pu16   int-sse-pack pminuw 1 "_mm_min_epu16" :commutative t)
 
 (def-binary-intrinsic mulhi-pi16 int-sse-pack pmulhw 3 "_mm_mulhi_epi16" :commutative t)
 (def-binary-intrinsic mulhi-pu16 int-sse-pack pmulhuw 3 "_mm_mulhi_epu16" :commutative t)
@@ -729,3 +733,6 @@
 (def-unary-intrinsic convert-pi-to-su64 (unsigned-byte 64) movd 1
                      #-msvc "_mm_cvtsi128_si64" #+msvc "_mm_cvtsi128_si64x" :arg-type int-sse-pack)
 
+(def-unary-intrinsic convert-pu16-to-pi32 int-sse-pack pmovzxwd 3 "_mm_cvtepu16_epi32" :arg-type int-sse-pack)
+
+(def-binary-intrinsic packu16-pi32 int-sse-pack packusdw 1 "_mm_packus_epi32")
