@@ -233,8 +233,8 @@
 
 (def-binary-intrinsic move-ss float-sse-pack movss 1 "_mm_move_ss")
 
-(def-binary-intrinsic movehl-ps float-sse-pack movhlps 1 "_mm_movehl_ps")
-(def-binary-intrinsic movelh-ps float-sse-pack movlhps 1 "_mm_movelh_ps")
+(def-binary-intrinsic movehl-ps float-sse-pack movhlps 1 "_mm_movehl_ps" :mem-alt-insn movlps)
+(def-binary-intrinsic movelh-ps float-sse-pack movlhps 1 "_mm_movelh_ps" :mem-alt-insn movhps)
 
 (def-unary-intrinsic movehdup-ps float-sse-pack movshdup 1 "_mm_movehdup_ps")
 (def-unary-intrinsic moveldup-ps float-sse-pack movsldup 1 "_mm_moveldup_ps")
