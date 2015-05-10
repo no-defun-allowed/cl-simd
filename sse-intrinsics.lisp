@@ -587,9 +587,6 @@
 (def-binary-intrinsic min-pu32   int-sse-pack pminud 1 "_mm_min_epu32" :commutative t)
 (def-binary-intrinsic min-pi32   int-sse-pack pminsd 1 "_mm_min_epi32" :commutative t)
 
-(def-binary-intrinsic max-pu16   int-sse-pack pmaxuw 1 "_mm_max_epu16" :commutative t)
-(def-binary-intrinsic min-pu16   int-sse-pack pminuw 1 "_mm_min_epu16" :commutative t)
-
 (def-unary-intrinsic minpos-pu16 int-sse-pack phminposuw 3 "_mm_minpos_epu16")
 
 (def-binary-intrinsic mulhi-pi16  int-sse-pack pmulhw 3 "_mm_mulhi_epi16" :commutative t)
@@ -814,8 +811,6 @@
 #+(or x86_64 x86-64)
 (def-unary-intrinsic convert-pi-to-su64 (unsigned-byte 64) movd 1
                      #-msvc "_mm_cvtsi128_si64" #+msvc "_mm_cvtsi128_si64x" :arg-type int-sse-pack)
-
-(def-unary-intrinsic convert-pu16-to-pi32 int-sse-pack pmovzxwd 3 "_mm_cvtepu16_epi32" :arg-type int-sse-pack)
 
 (def-binary-intrinsic packu16-pi32 int-sse-pack packusdw 1 "_mm_packus_epi32")
 
