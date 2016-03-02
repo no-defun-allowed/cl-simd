@@ -9,8 +9,11 @@
 
 (defsystem :cl-simd
   :version "1.0"
-  #+sb-building-contrib :pathname
-  #+sb-building-contrib #p"SYS:CONTRIB;CL-SIMD;"
+  :author "Alexander Gavrilov"
+  :maintainer ""
+  :description "SSE intrinsics implementation for ECL & SBCL"
+  :mailto "angavrilov@gmail.com"
+  :license "CC"
   :components
   #+(and sbcl sb-simd-pack)
   ((:file "sse-package")
@@ -29,11 +32,13 @@
    (:file "sse-utils" :depends-on ("ecl-sse-utils")))
   #-(or (and sbcl sb-simd-pack)
         (and ecl sse2))
-  ())
+  ()
+  :in-order-to ((test-op (test-op cl-simd.test))))
 
-(defmethod perform ((o test-op) (c (eql (find-system :cl-simd))))
-  #+(or (and sbcl sb-simd-pack)
-        (and ecl sse2))
-  (or (load (compile-file "test-sfmt.lisp"))
-      (error "test-sfmt failed")))
-
+(defsystem :cl-simd.test
+  :version "1.0"
+  :depends-on (:cl-simd)
+  :components
+  (#+(or (and sbcl sb-simd-pack)
+         (and ecl sse2))
+   (:file "test-sfmt")))
