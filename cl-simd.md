@@ -20,17 +20,20 @@ SSE pack types
 The package defines and/or exports the following types to represent
 128-bit SSE register contents:
 
- -- Type: _sse-pack,sse_ \&optional item-type
-     The generic SSE pack type.
+Package: _sse_
+  : The packages where the cl-simd symbols are present.
 
- -- Type: _int-sse-pack,sse_
-     Same as `(sse-pack integer)`.
+Type: _sse-pack_ &optional item-type
+  : The generic SSE pack type.
 
- -- Type: _float-sse-pack,sse_
-     Same as `(sse-pack single-float)`.
+Type: _int-sse-pack_
+  : Same as `(sse-pack integer)`.
 
- -- Type: _double-sse-pack,sse_
-     Same as `(sse-pack double-float)`.
+Type: _float-sse-pack_
+  : Same as `(sse-pack single-float)`.
+
+Type: _double-sse-pack_
+  : Same as `(sse-pack double-float)`.
 
    Declaring variable types using the subtype appropriate for your data
 is likely to lead to more efficient code (especially on ECL). However,
@@ -40,8 +43,8 @@ needed.
    Printed representation of SSE packs can be controlled by binding
 `*sse-pack-print-mode*`:
 
- -- Variable: _sse-pack-print-mode,sse_
-     When set to one of `:int`, `:float` or `:double`, specifies the way
+Variable: _sse-pack-print-mode_
+  :  When set to one of `:int`, `:float` or `:double`, specifies the way
      SSE packs are printed.  A `NIL` value (default) instructs the
      implementation to make its best effort to guess from the data and
      context.
@@ -49,29 +52,29 @@ needed.
 SSE array type
 ------------------
 
- -- Type: _sse-array,sse_ element-type \&optional dimensions
-     Expands to a lisp array type that is efficiently supported by
+Type: _sse-array_ element-type &optional dimensions
+ 
+  : Expands to a lisp array type that is efficiently supported by
      AREF-like accessors.  It should be assumed to be a subtype of
      `SIMPLE-ARRAY`.  The type expander signals warnings or errors if it
      detects that the element-type argument value is inappropriate or
      unsafe.
 
- -- Function: _make-sse-array,sse_ dimensions \&key element-type
-          initial-element displaced-to displaced-index-offset
-     Creates an object of type `sse-array`, or signals an error.  In
+Function: _make-sse-array_ dimensions &key element-type initial-element displaced-to displaced-index-offset
+          
+  : Creates an object of type `sse-array`, or signals an error.  In
      non-displaced case ensures alignment of the beginning of data to
      the 16-byte boundary.  Unlike `make-array`, the element type
      defaults to (unsigned-byte 8).
-
-   On ECL this function supports full-featured displacement.  On SBCL it
-has to simulate it by sharing the underlying data vector, and does not
-support nonzero index offset.
+    
+  : On ECL this function supports full-featured displacement.  On SBCL it
+    has to simulate it by sharing the underlying data vector, and does not
+    support nonzero index offset.
 
 Differences from C intrinsics
 ---------------------------------
 
-Intel Compiler, GCC and MSVC
-(http://msdn.microsoft.com/en-us/library/y0dh78ez%28VS.80%29.aspx) all
+Intel Compiler, GCC and MSVC[^1] all
 support the same set of SSE intrinsics, originally designed by Intel.
 This package generally follows the naming scheme of the C version, with
 the following exceptions:
@@ -112,6 +115,8 @@ SETF-able:
    * `mem-ref-pi`, `mem-ref-api`, `mem-ref-si64`
 
    (The `-ap*` version requires alignment.)
+
+[^1]: http://msdn.microsoft.com/en-us/library/y0dh78ez%28VS.80%29.aspx
 
 Comparisons and NaN handling
 --------------------------------

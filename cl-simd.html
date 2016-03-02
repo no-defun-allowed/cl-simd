@@ -1,22 +1,46 @@
-<h1 id="cl-simd">cl-simd</h1>
+<h1>cl-simd</h1>
 <p>The <code>cl-simd</code> module provides access to SSE2 instructions (which are nowadays supported by any CPU compatible with x86-64) in the form of <em>intrinsic functions</em>, similar to the way adopted by modern C compilers. It also provides some lisp-specific functionality, like setf-able intrinsics for accessing lisp arrays.</p>
 <p>When this module is loaded, it defines an <code>:sse2</code> feature, which can be subsequently used for conditional compilation of code that depends on it. Intrinsic functions are available from the <code>sse</code> package.</p>
 <p>This API, with minor technical differences, is supported by both ECL and SBCL (x86-64 only).</p>
-<h2 id="sse-pack-types">SSE pack types</h2>
+<h2>SSE pack types</h2>
 <p>The package defines and/or exports the following types to represent 128-bit SSE register contents:</p>
-<p>-- Type: <em>sse-pack,sse</em> &amp;optional item-type The generic SSE pack type.</p>
-<p>-- Type: <em>int-sse-pack,sse</em> Same as <code>(sse-pack integer)</code>.</p>
-<p>-- Type: <em>float-sse-pack,sse</em> Same as <code>(sse-pack single-float)</code>.</p>
-<p>-- Type: <em>double-sse-pack,sse</em> Same as <code>(sse-pack double-float)</code>.</p>
+<dl>
+<dt>Package: <em>sse</em></dt>
+<dd><p>The packages where the cl-simd symbols are present.</p>
+</dd>
+<dt>Type: <em>sse-pack</em> &amp;optional item-type</dt>
+<dd><p>The generic SSE pack type.</p>
+</dd>
+<dt>Type: <em>int-sse-pack</em></dt>
+<dd><p>Same as <code>(sse-pack integer)</code>.</p>
+</dd>
+<dt>Type: <em>float-sse-pack</em></dt>
+<dd><p>Same as <code>(sse-pack single-float)</code>.</p>
+</dd>
+<dt>Type: <em>double-sse-pack</em></dt>
+<dd><p>Same as <code>(sse-pack double-float)</code>.</p>
+</dd>
+</dl>
 <p>Declaring variable types using the subtype appropriate for your data is likely to lead to more efficient code (especially on ECL). However, the compiler implicitly casts between any subtypes of sse-pack when needed.</p>
 <p>Printed representation of SSE packs can be controlled by binding <code>*sse-pack-print-mode*</code>:</p>
-<p>-- Variable: <em>sse-pack-print-mode,sse</em> When set to one of <code>:int</code>, <code>:float</code> or <code>:double</code>, specifies the way SSE packs are printed. A <code>NIL</code> value (default) instructs the implementation to make its best effort to guess from the data and context.</p>
-<h2 id="sse-array-type">SSE array type</h2>
-<p>-- Type: <em>sse-array,sse</em> element-type &amp;optional dimensions Expands to a lisp array type that is efficiently supported by AREF-like accessors. It should be assumed to be a subtype of <code>SIMPLE-ARRAY</code>. The type expander signals warnings or errors if it detects that the element-type argument value is inappropriate or unsafe.</p>
-<p>-- Function: <em>make-sse-array,sse</em> dimensions &amp;key element-type initial-element displaced-to displaced-index-offset Creates an object of type <code>sse-array</code>, or signals an error. In non-displaced case ensures alignment of the beginning of data to the 16-byte boundary. Unlike <code>make-array</code>, the element type defaults to (unsigned-byte 8).</p>
-<p>On ECL this function supports full-featured displacement. On SBCL it has to simulate it by sharing the underlying data vector, and does not support nonzero index offset.</p>
-<h2 id="differences-from-c-intrinsics">Differences from C intrinsics</h2>
-<p>Intel Compiler, GCC and MSVC (http://msdn.microsoft.com/en-us/library/y0dh78ez%28VS.80%29.aspx) all support the same set of SSE intrinsics, originally designed by Intel. This package generally follows the naming scheme of the C version, with the following exceptions:</p>
+<dl>
+<dt>Variable: <em>sse-pack-print-mode</em></dt>
+<dd>When set to one of <code>:int</code>, <code>:float</code> or <code>:double</code>, specifies the way SSE packs are printed. A <code>NIL</code> value (default) instructs the implementation to make its best effort to guess from the data and context.
+</dd>
+</dl>
+<h2>SSE array type</h2>
+<dl>
+<dt>Type: <em>sse-array</em> element-type &amp;optional dimensions</dt>
+<dd><p>Expands to a lisp array type that is efficiently supported by AREF-like accessors. It should be assumed to be a subtype of <code>SIMPLE-ARRAY</code>. The type expander signals warnings or errors if it detects that the element-type argument value is inappropriate or unsafe.</p>
+</dd>
+<dt>Function: <em>make-sse-array</em> dimensions &amp;key element-type initial-element displaced-to displaced-index-offset</dt>
+<dd><p>Creates an object of type <code>sse-array</code>, or signals an error. In non-displaced case ensures alignment of the beginning of data to the 16-byte boundary. Unlike <code>make-array</code>, the element type defaults to (unsigned-byte 8).</p>
+</dd>
+<dd><p>On ECL this function supports full-featured displacement. On SBCL it has to simulate it by sharing the underlying data vector, and does not support nonzero index offset.</p>
+</dd>
+</dl>
+<h2>Differences from C intrinsics</h2>
+<p>Intel Compiler, GCC and MSVC<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> all support the same set of SSE intrinsics, originally designed by Intel. This package generally follows the naming scheme of the C version, with the following exceptions:</p>
 <ul>
 <li><p>Underscores are replaced with dashes, and the <code>_mm_</code> prefix is removed in favor of packages.</p></li>
 <li><p>The <code>e</code> from <code>epi</code> is dropped because MMX is obsolete and won`t be supported.</p></li>
@@ -33,7 +57,7 @@
 <li><p><code>mem-ref-pi</code>, <code>mem-ref-api</code>, <code>mem-ref-si64</code></p></li>
 </ul>
 <p>(The <code>-ap*</code> version requires alignment.)</p>
-<h2 id="comparisons-and-nan-handling">Comparisons and NaN handling</h2>
+<h2>Comparisons and NaN handling</h2>
 <p>Floating-point arithmetic intrinsics have trivial IEEE semantics when given QNaN and SNaN arguments. Comparisons have more complex behavior, detailed in the following table:</p>
 <table>
 <thead>
@@ -259,7 +283,7 @@
 </tbody>
 </table>
 <p>Note that MSDN specifies different return values for the C counterparts of some of these functions when called with NaN arguments, but that seems to disagree with the actually generated code.</p>
-<h2 id="simple-extensions">Simple extensions</h2>
+<h2>Simple extensions</h2>
 <p>This module extends the set of basic intrinsics with the following simple compound functions:</p>
 <ul>
 <li><p><code>neg-ss</code>, <code>neg-ps</code>, <code>neg-sd</code>, <code>neg-pd</code>, <code>neg-pi8</code>, <code>neg-pi16</code>, <code>neg-pi32</code>, <code>neg-pi64</code>:</p>
@@ -277,7 +301,7 @@
 <li><p>true-ps true-pd true-pi for all 1 bitmask</p></li>
 <li><p>false-ps false-pd false-pi for all 0 bitmask (same as zero)</p></li>
 </ul>
-<h2 id="lisp-array-accessors">Lisp array accessors</h2>
+<h2>Lisp array accessors</h2>
 <p>In order to provide better integration with ordinary lisp code, this module implements a set of AREF-like memory accessors:</p>
 <ul>
 <li><p><code>(ROW-MAJOR-)?AREF-PREFETCH-(T0|T1|T2|NTA)</code> for cache prefetch.</p></li>
@@ -289,7 +313,7 @@
 <p>These accessors can be used with any non-bit specialized array or vector, without restriction on the precise element type (although it should be declared at compile time to ensure generation of the fastest code).</p>
 <p>Additional index bound checking is done to ensure that enough bytes of memory are accessible after the specified index.</p>
 <p>As an exception, ROW-MAJOR-AREF-PREFETCH-* does not do any range checks at all, because the prefetch instructions are officially safe to use with bad addresses. The AREF-PREFETCH-* and *-CLFLUSH functions do only ordinary index checks without the usual 16-byte extension.</p>
-<h2 id="example">Example</h2>
+<h2>Example</h2>
 <p>This code processes several single-float arrays, storing either the value of a*b, or c/3.5 into result, depending on the sign of mode:</p>
 <pre><code> (loop for i from 0 below 128 by 4
     do (setf (aref-ps result i)
@@ -297,3 +321,9 @@
                     (mul-ps (aref-ps a i) (aref-ps b i))
                     (div-ps (aref-ps c i) (set1-ps 3.5)))))</code></pre>
 <p>As already noted above, both branches of the if are always evaluated.</p>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>http://msdn.microsoft.com/en-us/library/y0dh78ez%28VS.80%29.aspx<a href="#fnref1">↩</a></p></li>
+</ol>
+</div>
