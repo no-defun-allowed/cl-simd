@@ -224,7 +224,6 @@ Should be assumed to be SIMPLE-ARRAY, except that displacing with MAKE-SSE-ARRAY
               ``(the signed-word (%check-bound array (%sse-array-size array ,gap) index)))))
     `(progn
        ;; ROW-MAJOR-AREF
-       (export ',rm-aref)
        (defknown ,rm-aref (array index) ,rtype ,known-flags)
        (defun ,rm-aref (array index)
          (with-sse-data ((sap data array)
@@ -240,7 +239,6 @@ Should be assumed to be SIMPLE-ARRAY, except that displacing with MAKE-SSE-ARRAY
                               ,,index-expression
                               ,step ,+vector-data-fixup+)))
        ;; AREF
-       (export ',aref)
        (defknown ,aref (array &rest index) ,rtype ,known-flags)
        (defun ,aref (array &rest indices)
          (declare (truly-dynamic-extent indices))

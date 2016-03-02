@@ -22,7 +22,6 @@
                   (declare (type ,atype arg))
                   (truly-the ,rtype (%primitive ,fname arg)))
                 ;; Public function - includes coercion
-                (export ',pubname)
                 (declaim (ftype (function (real) ,rtype) ,pubname)
                          (inline ,pubname))
                 (defun ,pubname (arg) (,fname (coerce arg ',atype)))))
@@ -109,7 +108,6 @@
 
 (defmacro def-utility (name args rtype &body code)
   `(progn
-     (export ',name)
      (declaim (ftype (function ,(mapcar (constantly 'sse-pack) args) ,rtype) ,name)
               (inline ,name))
      (defun ,name ,args ,@code)))
@@ -124,7 +122,6 @@
          (true (%make-simd-pack tag #xFFFFFFFFFFFFFFFF #xFFFFFFFFFFFFFFFF))
          (false (%make-simd-pack tag 0 0)))
     `(progn
-       (export ',name)
        (defknown ,name (sse-pack sse-pack sse-pack) ,rtype (foldable flushable))
        (defun ,name (condition true-val false-val)
          (,or-x (,and-x condition true-val)
@@ -357,7 +354,6 @@
 
 (macrolet ((defset1 (name setter type shuffle &rest expands)
              `(progn
-                (export ',name)
                 (declaim (inline ,name))
                 (defun ,name (arg)
                   (let ((val (,setter (the ,type arg))))
@@ -381,8 +377,6 @@
                                              collect `(,(svref funcs i) ,a ,b))
                                 finally (return (first bv)))))
                `(progn
-                  (export ',name)
-                  (export ',rname)
                   (declaim (inline ,name ,rname))
                   (defun ,name (,@(reverse names)) ,body)
                   (defun ,rname (,@names) ,body)))))
@@ -397,8 +391,6 @@
 (defun setzero-pi () 0-pi)
 
 ;; Masked move
-
-(export 'maskmoveu-pi)
 
 (declaim (inline maskmoveu-pi))
 

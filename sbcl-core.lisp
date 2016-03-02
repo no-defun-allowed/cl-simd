@@ -561,7 +561,6 @@ May emit additional instructions using the temporary register."
          (immt (if immediate-arg (list immediate-arg)))
          (unsigned? (subtypep itype 'unsigned-byte)))
     `(progn
-       (export ',name)
        (save-intrinsic-spec ,name ,whole)
        (defknown ,name (sse-pack ,itype ,@immt) ,rtype (foldable flushable dx-safe))
        ;;

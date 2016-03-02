@@ -77,7 +77,6 @@
 
   (macrolet ((defvoid (name insn)
                `(progn
-                  (export ',name)
                   (defknown ,name () (values) ())
                   (define-vop (,name)
                     (:translate ,name)
@@ -768,13 +767,9 @@
 
 #+sbcl
 (progn
-  (export 'convert-si32-to-pi)
   (defknown convert-si32-to-pi ((signed-byte 32)) int-sse-pack (foldable flushable dx-safe))
-  (export 'convert-su32-to-pi)
   (defknown convert-su32-to-pi ((unsigned-byte 32)) int-sse-pack (foldable flushable dx-safe))
-  (export 'convert-si64-to-pi)
   (defknown convert-si64-to-pi ((signed-byte 64)) int-sse-pack (foldable flushable dx-safe))
-  (export 'convert-su64-to-pi)
   (defknown convert-su64-to-pi ((unsigned-byte 64)) int-sse-pack (foldable flushable dx-safe))
   (defknown %set-int ((signed-byte 64)) int-sse-pack (foldable flushable always-translatable dx-safe))
   (defknown %set-uint ((unsigned-byte 64)) int-sse-pack (foldable flushable always-translatable dx-safe))
