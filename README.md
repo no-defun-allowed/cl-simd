@@ -1,9 +1,10 @@
 cl-simd
 =========
 
-This library implements SSE intrinsic functions for ECL and SBCL.
+This library implements Streaming SIMD Extension intrinsic functions for ECL and SBCL.
 It provides access to SSE2 instructions (which are nowadays supported by
-any CPU compatible with x86-64) in the form of _intrinsic functions_,
+any CPU compatible with x86-64), as well as SSE3, SSSE, SSE4.1, SSE4.2 instructions.
+They are implemented in the form of _intrinsic functions_,
 similar to the way adopted by modern C compilers.  It also provides some
 lisp-specific functionality, like setf-able intrinsics for accessing
 lisp arrays.
@@ -21,6 +22,13 @@ NOTE: CURRENTLY THIS SHOULD BE CONSIDERED EXPERIMENTAL, AND
 Since the implementation is closely tied to the internals of the compiler,
 it should normally be obtained exclusively via the bundled contrib
 mechanism of the above implementations.
+
+Here are additional reference for x86-64 SIMD instructions:
+
++ [Wikipedia article on SSE](https://en.wikipedia.org/wiki/Streaming_SIMD_Extensions)
++ [Intel Dev Zone, Instruction Set Architecture (ISA)](https://software.intel.com/en-us/isa-extensions)
+  + [The Intel Intrinsics Guide](https://software.intel.com/sites/landingpage/IntrinsicsGuide/#) is an interactive reference tool for Intel intrinsic instructions.
++ [AMD64 Architecture Programmer's Manual Volume 4: 128-Bit Media Instructions](http://support.amd.com/TechDocs/26568.pdf)
 
 SSE pack types
 ------------------
@@ -79,6 +87,87 @@ Function: _make-sse-array_ dimensions &key element-type initial-element displace
     has to simulate it by sharing the underlying data vector, and does not
     support nonzero index offset.
 
+Lisp array accessors
+------------------------
+
+In order to provide better integration with ordinary lisp code, this
+module implements a set of AREF-like memory accessors:
+
+   * `(ROW-MAJOR-)?AREF-PREFETCH-(T0|T1|T2|NTA)` for cache prefetch.
+
+   * `(ROW-MAJOR-)?AREF-CLFLUSH` for cache flush.
+
+   * `(ROW-MAJOR-)?AREF-[AS]?P[SDI]` for whole-pack read & write.
+
+   * `(ROW-MAJOR-)?AREF-S(S|D|I64)` for scalar read & write.
+
+   (Where A = aligned; S = aligned streamed write.)
+
+   These accessors can be used with any non-bit specialized array or
+vector, without restriction on the precise element type (although it
+should be declared at compile time to ensure generation of the fastest
+code).
+
+   Additional index bound checking is done to ensure that enough bytes
+of memory are accessible after the specified index.
+
+   As an exception, ROW-MAJOR-AREF-PREFETCH-* does not do any range
+checks at all, because the prefetch instructions are officially safe to
+use with bad addresses.  The AREF-PREFETCH-* and *-CLFLUSH functions do
+only ordinary index checks without the usual 16-byte extension.
+
+Example
+-----------
+
+This code processes several single-float arrays, storing either the
+value of a*b, or c/3.5 into result, depending on the sign of mode:
+
+     (loop for i from 0 below 128 by 4
+        do (setf (aref-ps result i) ; writes 4 floats [i .. i+3] actually
+                 (if-ps (<-ps (aref-ps mode i) 0.0-ps)
+                        (mul-ps (aref-ps a i) (aref-ps b i))
+                        (div-ps (aref-ps c i) (set1-ps 3.5)))))
+
+   As already noted above, both branches of the if are always evaluated.
+
+Simple extensions
+---------------------
+
+This module extends the set of basic intrinsics with the following
+simple compound functions:
+
+   * `neg-ss`, `neg-ps`, `neg-sd`, `neg-pd`, `neg-pi8`, `neg-pi16`,
+     `neg-pi32`, `neg-pi64`:
+
+     implement numeric negation of the corresponding data type.
+
+   * `not-ps`, `not-pd`, `not-pi`:
+
+     implement bitwise logical inversion.
+
+   * `if-ps`, `if-pd`, `if-pi`:
+
+     perform element-wise combining of two values based on a boolean
+     condition vector produced as a combination of comparison function
+     results through bitwise logical functions.
+
+     The condition value must use all-zero bitmask for false, and
+     all-one bitmask for true as a value for each logical vector
+     element.  The result is undefined if any other bit pattern is used.
+
+     N.B.: these are _functions_, so both branches of the conditional
+     are always evaluated.
+
+   The module also provides symbol macros that expand into expressions
+producing certain constants in the most efficient way:
+
+   * 0.0-ps 0.0-pd 0-pi for zero
+
+   * true-ps true-pd true-pi for all 1 bitmask
+
+   * false-ps false-pd false-pi for all 0 bitmask (same as zero)
+
+
 Differences from C intrinsics
 ---------------------------------
 
@@ -134,7 +223,7 @@ given QNaN and SNaN arguments.  Comparisons have more complex behavior,
 detailed in the following table:
 
 | Single-float    | Double-float    | Condition                      | Result for NaN | QNaN traps |
-|-----------------+-----------------+--------------------------------+----------------+------------|
+|-----------------|-----------------|--------------------------------|----------------|------------|
 | `=-ss`,`=-ps`   | `=-sd`,`=-pd`   | Equal                          | False          | No         |
 | `<-ss`,`<-ps`   | `<-sd`,`<-pd`   | Less                           | False          | Yes        |
 | `<=-ss`,`<=-ps` | `<=-sd`,`<=-pd` | Less or equal                  | False          | Yes        |
@@ -158,7 +247,7 @@ return the result of the comparison as a Lisp boolean instead of a
 bitmask sse-pack:
 
 | Single-float | Double-float | Condition        | Result_for_NaN | QNaN_traps |
-|--------------+--------------+------------------+----------------+------------|
+|--------------|--------------|------------------|----------------|------------|
 | `=-ss?`      | `=-sd?`      | Equal            | True           | Yes        |
 | `=-ssu?`     | `=-sdu?`     | Equal            | True           | No         |
 | `<-ss?`      | `<-sd?`      | Less             | True           | Yes        |
@@ -176,82 +265,16 @@ bitmask sse-pack:
 counterparts of some of these functions when called with NaN arguments,
 but that seems to disagree with the actually generated code.
 
-Simple extensions
----------------------
-
-This module extends the set of basic intrinsics with the following
-simple compound functions:
-
-   * `neg-ss`, `neg-ps`, `neg-sd`, `neg-pd`, `neg-pi8`, `neg-pi16`,
-     `neg-pi32`, `neg-pi64`:
-
-     implement numeric negation of the corresponding data type.
-
-   * `not-ps`, `not-pd`, `not-pi`:
-
-     implement bitwise logical inversion.
-
-   * `if-ps`, `if-pd`, `if-pi`:
-
-     perform element-wise combining of two values based on a boolean
-     condition vector produced as a combination of comparison function
-     results through bitwise logical functions.
-
-     The condition value must use all-zero bitmask for false, and
-     all-one bitmask for true as a value for each logical vector
-     element.  The result is undefined if any other bit pattern is used.
-
-     N.B.: these are _functions_, so both branches of the conditional
-     are always evaluated.
-
-   The module also provides symbol macros that expand into expressions
-producing certain constants in the most efficient way:
-
-   * 0.0-ps 0.0-pd 0-pi for zero
-
-   * true-ps true-pd true-pi for all 1 bitmask
-
-   * false-ps false-pd false-pi for all 0 bitmask (same as zero)
-
-Lisp array accessors
+History and Contributors
 ------------------------
 
-In order to provide better integration with ordinary lisp code, this
-module implements a set of AREF-like memory accessors:
 
-   * `(ROW-MAJOR-)?AREF-PREFETCH-(T0|T1|T2|NTA)` for cache prefetch.
+The code and the documentation was originally wrote and maintained for some length of time by [Alexander Gavrilov@angavrilov](https://github.com/angavrilov). However, it is unmaintained now.
 
-   * `(ROW-MAJOR-)?AREF-CLFLUSH` for cache flush.
+[Jonathan Armond@jarmond](https://github.com/jarmond) contributed a patch which fixes the issue related to movlhps and movhlps, and also a patch that extends the support for SSE3+ (SSE3, SSSE3, SSE4, SSE4.1, SSE4.2.)
 
-   * `(ROW-MAJOR-)?AREF-[AS]?P[SDI]` for whole-pack read & write.
+[Kouichi Toyozumi](https://github.com/TOYOZUMIKouichi) also contributed a patch which adds further support for SSE3+ as well as a fix to catch up with the latest SBCL.
 
-   * `(ROW-MAJOR-)?AREF-S(S|D|I64)` for scalar read & write.
+[Rudolph-Miller](https://github.com/Rudolph-Miller) merged these several independent patches into one.
 
-   (Where A = aligned; S = aligned streamed write.)
-
-   These accessors can be used with any non-bit specialized array or
-vector, without restriction on the precise element type (although it
-should be declared at compile time to ensure generation of the fastest
-code).
-
-   Additional index bound checking is done to ensure that enough bytes
-of memory are accessible after the specified index.
-
-   As an exception, ROW-MAJOR-AREF-PREFETCH-* does not do any range
-checks at all, because the prefetch instructions are officially safe to
-use with bad addresses.  The AREF-PREFETCH-* and *-CLFLUSH functions do
-only ordinary index checks without the usual 16-byte extension.
-
-Example
------------
-
-This code processes several single-float arrays, storing either the
-value of a*b, or c/3.5 into result, depending on the sign of mode:
-
-     (loop for i from 0 below 128 by 4
-        do (setf (aref-ps result i)
-                 (if-ps (<-ps (aref-ps mode i) 0.0-ps)
-                        (mul-ps (aref-ps a i) (aref-ps b i))
-                        (div-ps (aref-ps c i) (set1-ps 3.5)))))
-
-   As already noted above, both branches of the if are always evaluated.
+[Masataro Asai@guicho271828](https://github.com/guicho271828) just improved the style and the usability of this README a bit. :)
