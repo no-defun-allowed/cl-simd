@@ -42,7 +42,7 @@
   (:import-from #:SB-IMPL
                 #:%ARRAY-ROW-MAJOR-INDEX)
   #+sbcl
-  (:shadow #:INT-SSE-PACK #:FLOAT-SSE-PACK #:DOUBLE-SSE-PACK)
+  (:shadow #:INT-SSE-PACK #:FLOAT-SSE-PACK #:DOUBLE-SSE-PACK #:DEFKNOWN)
   #+ecl
   (:use #:COMMON-LISP #:FFI)
   #+ecl

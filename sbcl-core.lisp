@@ -8,6 +8,11 @@
 
 (in-package #:SSE)
 
+(defmacro defknown (&whole whole name arg-types result-type &optional (attributes '(any)) &body keys)
+  (declare (ignorable name arg-types result-type attributes keys))
+  `(handler-bind ((simple-error #'continue))
+     (sb-c:defknown ,@(cdr whole))))
+
 (eval-when (:load-toplevel :compile-toplevel :execute)
   (define-symbol-macro +any-sse-reg+
       '(int-sse-reg single-sse-reg double-sse-reg))
