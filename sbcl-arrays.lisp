@@ -247,6 +247,7 @@ Should be assumed to be SIMPLE-ARRAY, except that displacing with MAKE-SSE-ARRAY
            (,reader-vop sap offset 1 0)))
        ;;
        (defoptimizer (,aref derive-type) ((array &rest indices) node)
+         (declare (ignorable node))
          (assert-array-rank array (length indices))
          (values-specifier-type ',rtype))
        (deftransform ,aref ((array &rest indices) (simple-array &rest t) * :important t)
