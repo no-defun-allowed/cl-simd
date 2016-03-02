@@ -31,11 +31,6 @@
         (and ecl sse2))
   ())
 
-#+(or (and sbcl sb-simd-pack)
-      (and ecl sse2))
-(defmethod perform :after ((o load-op) (c (eql (find-system :cl-simd))))
-  (provide :cl-simd))
-
 (defmethod perform ((o test-op) (c (eql (find-system :cl-simd))))
   #+(or (and sbcl sb-simd-pack)
         (and ecl sse2))

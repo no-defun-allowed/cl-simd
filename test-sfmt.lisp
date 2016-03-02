@@ -2,9 +2,6 @@
 ;;;
 ;;; Dumbly translated from C code at: http://github.com/jj1bdx/sfmt-extstate
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (require :cl-simd))
-
 (defpackage #:sfmt-test
   (:use #:common-lisp #:sse))
 
