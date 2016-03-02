@@ -1,18 +1,26 @@
 cl-simd
 =========
 
-The `cl-simd` module provides access to SSE2 instructions (which are
-nowadays supported by any CPU compatible with x86-64) in the form of
-_intrinsic functions_, similar to the way adopted by modern C compilers.
-It also provides some lisp-specific functionality, like setf-able
-intrinsics for accessing lisp arrays.
+This library implements SSE intrinsic functions for ECL and SBCL.
+It provides access to SSE2 instructions (which are nowadays supported by
+any CPU compatible with x86-64) in the form of _intrinsic functions_,
+similar to the way adopted by modern C compilers.  It also provides some
+lisp-specific functionality, like setf-able intrinsics for accessing
+lisp arrays.
 
-   When this module is loaded, it defines an `:sse2` feature, which can
-be subsequently used for conditional compilation of code that depends on
-it.  Intrinsic functions are available from the `sse` package.
+This API, with minor technical differences, is supported by both ECL and
+SBCL (x86-64 only).
 
-   This API, with minor technical differences, is supported by both ECL
-and SBCL (x86-64 only).
+When this module is loaded, it defines an `:sse2` feature, which can be
+subsequently used for conditional compilation of code that depends on it.
+Intrinsic functions are available from the `sse` package.
+
+NOTE: CURRENTLY THIS SHOULD BE CONSIDERED EXPERIMENTAL, AND
+      SUBJECT TO INCOMPATIBLE CHANGES IN A FUTURE RELEASE.
+
+Since the implementation is closely tied to the internals of the compiler,
+it should normally be obtained exclusively via the bundled contrib
+mechanism of the above implementations.
 
 SSE pack types
 ------------------

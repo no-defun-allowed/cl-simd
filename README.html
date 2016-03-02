@@ -1,7 +1,9 @@
 <h1>cl-simd</h1>
-<p>The <code>cl-simd</code> module provides access to SSE2 instructions (which are nowadays supported by any CPU compatible with x86-64) in the form of <em>intrinsic functions</em>, similar to the way adopted by modern C compilers. It also provides some lisp-specific functionality, like setf-able intrinsics for accessing lisp arrays.</p>
-<p>When this module is loaded, it defines an <code>:sse2</code> feature, which can be subsequently used for conditional compilation of code that depends on it. Intrinsic functions are available from the <code>sse</code> package.</p>
+<p>This library implements SSE intrinsic functions for ECL and SBCL. It provides access to SSE2 instructions (which are nowadays supported by any CPU compatible with x86-64) in the form of <em>intrinsic functions</em>, similar to the way adopted by modern C compilers. It also provides some lisp-specific functionality, like setf-able intrinsics for accessing lisp arrays.</p>
 <p>This API, with minor technical differences, is supported by both ECL and SBCL (x86-64 only).</p>
+<p>When this module is loaded, it defines an <code>:sse2</code> feature, which can be subsequently used for conditional compilation of code that depends on it. Intrinsic functions are available from the <code>sse</code> package.</p>
+<p>NOTE: CURRENTLY THIS SHOULD BE CONSIDERED EXPERIMENTAL, AND SUBJECT TO INCOMPATIBLE CHANGES IN A FUTURE RELEASE.</p>
+<p>Since the implementation is closely tied to the internals of the compiler, it should normally be obtained exclusively via the bundled contrib mechanism of the above implementations.</p>
 <h2>SSE pack types</h2>
 <p>The package defines and/or exports the following types to represent 128-bit SSE register contents:</p>
 <dl>
