@@ -65,6 +65,12 @@ Should be assumed to be SIMPLE-ARRAY, except that displacing with MAKE-SSE-ARRAY
           (warn "SSE-ARRAY element type ~S has been upgraded to ~S" elt-type upgraded))
         `(simple-array ,upgraded ,dims))))
 
+(declaim (ftype (function ((or (integer 0 #.ARRAY-DIMENSION-LIMIT) list)
+                           &key (:element-type t) (:initial-element t)
+                           (:displaced-to t) (:displaced-index-offset (integer 0 #.ARRAY-DIMENSION-LIMIT)))
+                          sse-array)
+                make-sse-array))
+(declaim (inline make-sse-array))
 (defun make-sse-array (dimensions &key (element-type '(unsigned-byte 8)) (initial-element nil ie-p) displaced-to (displaced-index-offset 0))
   "Allocates an SSE-ARRAY aligned to the 16-byte boundary. Flattens displacement chains for performance reasons."
   (let* ((upgraded (upgraded-array-element-type element-type))
