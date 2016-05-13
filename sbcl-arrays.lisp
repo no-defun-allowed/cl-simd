@@ -14,6 +14,7 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defun sse-elt-shift-from-saetp (info)
+    "note: saet: specialized array element type"
     (and info
          (subtypep (saetp-specifier info) 'number)
          (not (saetp-fixnum-p info))
@@ -72,7 +73,8 @@ Should be assumed to be SIMPLE-ARRAY, except that displacing with MAKE-SSE-ARRAY
                 make-sse-array))
 (declaim (inline make-sse-array))
 (defun make-sse-array (dimensions &key (element-type '(unsigned-byte 8)) (initial-element nil ie-p) displaced-to (displaced-index-offset 0))
-  "Allocates an SSE-ARRAY aligned to the 16-byte boundary. Flattens displacement chains for performance reasons."
+  "Allocates an SSE-ARRAY aligned to the 16-byte boundary. Flattens displacement chains for performance reasons.
+Unlike make-array, the element-type is by default (unsigned-byte 8), which means (make-sse-array N) allocates exactly N bytes (8*N bits)."
   (let* ((upgraded (upgraded-array-element-type element-type))
          (shift (sse-elt-shift-from-saetp (find-saetp upgraded))))
     (when (null shift)
@@ -185,6 +187,7 @@ Should be assumed to be SIMPLE-ARRAY, except that displacing with MAKE-SSE-ARRAY
                         (if (null (cdr (array-type-dimensions type))) :yes :no)))))
         ((union-type-p type)
          ;; Support unions of array types with the same elt size
+         ;; e.g. (or (unsigned-byte 32) (signed-byte 32))
          (let (nonfirst rshift rdims)
            (dolist (subtype (union-type-types type))
              (multiple-value-bind (shift dims)
@@ -203,8 +206,7 @@ Should be assumed to be SIMPLE-ARRAY, except that displacing with MAKE-SSE-ARRAY
          (give-up-ir1-transform "not a simple array type"))))
 
 (defun sse-array-info-or-give-up (lvar ref-size)
-  ;; Look up the SSE element size and check if it is definitely a
-  ;; vector
+  "Look up the SSE element size and check if it is definitely a vector"
   (multiple-value-bind (shift dim-info)
       (sse-array-type-info-or-give-up (lvar-type lvar))
     (values (ash 1 shift)                 ; step
