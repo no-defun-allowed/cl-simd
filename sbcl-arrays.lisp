@@ -45,6 +45,13 @@
                :datum obj
                :expected-type 'sse-array))))
 
+(defun assert-array-rank (array rank)
+  (assert-lvar-type
+   array
+   (specifier-type `(array * ,(make-list rank :initial-element '*)))
+   (lexenv-policy (node-lexenv (lvar-dest array)))))
+
+
 #|--------------------------------------|
  |     SSE-ARRAY TYPE AND ALLOCATION    |
  |--------------------------------------|#
