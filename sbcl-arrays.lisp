@@ -252,7 +252,7 @@ Should be assumed to be SIMPLE-ARRAY, except that displacing with MAKE-SSE-ARRAY
        (defun ,aref (array &rest indices)
          (declare (truly-dynamic-extent indices))
          (with-sse-data ((sap data array)
-                         (offset (%array-row-major-index array indices)))
+                         (offset (apply #'%array-row-major-index array indices)))
            (,reader-vop sap offset 1 0)))
        ;;
        (defoptimizer (,aref derive-type) ((array &rest indices) node)
