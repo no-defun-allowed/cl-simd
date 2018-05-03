@@ -32,7 +32,7 @@
                 #:%DEFTRANSFORM #:DX-SAFE
                 #:GIVE-UP-IR1-TRANSFORM #:ABORT-IR1-TRANSFORM
                 #:INSERT-ARRAY-BOUNDS-CHECKS #:VECTOR-LENGTH
-                #:ASSERT-LVAR-TYPE
+                #:ASSERT-LVAR-TYPE #:LVAR-DEST
                 #:CONSTANT-LVAR-P #:LVAR-VALUE #:LVAR-TYPE #:LVAR-USES
                 #:LVAR-FUN-NAME #:BASIC-COMBINATION-FUN
                 #:LEXENV-POLICY #:NODE-LEXENV #:POLICY
