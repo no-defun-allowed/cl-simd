@@ -89,19 +89,6 @@
     (defvoid cpu-memory-fence mfence)
     (defvoid cpu-pause pause)))
 
-#+ecl
-(progn
-  (def-intrinsic cpu-mxcsr () fixnum "_mm_getcsr")
-  (def-intrinsic %set-cpu-mxcsr (fixnum) fixnum "_mm_setcsr" :export nil :ret-arg 0)
-
-  (defsetf cpu-mxcsr %set-cpu-mxcsr)
-
-  (def-intrinsic cpu-load-fence () nil "_mm_lfence")
-  (def-intrinsic cpu-store-fence () nil "_mm_sfence")
-  (def-intrinsic cpu-memory-fence () nil "_mm_mfence")
-
-  (def-intrinsic cpu-pause () nil "_mm_pause"))
-
 #|-----------------------------------------|
  |   SINGLE-FLOAT INTRINSICS DEFINITIONS   |
  |-----------------------------------------|#
@@ -110,16 +97,6 @@
 
 #+sbcl
 (def-float-set-intrinsic set-ss %set-ss single-float single-reg float-sse-pack movaps)
-
-#+ecl
-(progn
-  (def-intrinsic set-ss (single-float) float-sse-pack "_mm_set_ss")
-  (def-intrinsic set1-ps (single-float) float-sse-pack "_mm_set1_ps")
-
-  (def-intrinsic set-ps (single-float single-float single-float single-float) float-sse-pack "_mm_set_ps")
-  (def-intrinsic setr-ps (single-float single-float single-float single-float) float-sse-pack "_mm_setr_ps")
-
-  (def-intrinsic setzero-ps () float-sse-pack "_mm_setzero_ps"))
 
 ;; Memory
 
@@ -184,14 +161,6 @@
 (def-binary-intrinsic <-ps float-sse-pack cmpps 3 "_mm_cmplt_ps" :tags (:lt))
 (def-binary-intrinsic <=-ss float-sse-pack cmpss 3 "_mm_cmple_ss" :tags (:le))
 (def-binary-intrinsic <=-ps float-sse-pack cmpps 3 "_mm_cmple_ps" :tags (:le))
-#+ecl
-(def-binary-intrinsic >-ss float-sse-pack nil nil "_mm_cmpgt_ss")
-#+ecl
-(def-binary-intrinsic >-ps float-sse-pack nil nil "_mm_cmpgt_ps")
-#+ecl
-(def-binary-intrinsic >=-ss float-sse-pack nil nil "_mm_cmpge_ss")
-#+ecl
-(def-binary-intrinsic >=-ps float-sse-pack nil nil "_mm_cmpge_ps")
 
 (def-binary-intrinsic /=-ss float-sse-pack cmpss 3 "_mm_cmpneq_ss" :tags (:neq))
 (def-binary-intrinsic /=-ps float-sse-pack cmpps 3 "_mm_cmpneq_ps" :tags (:neq) :commutative t)
@@ -199,14 +168,6 @@
 (def-binary-intrinsic /<-ps float-sse-pack cmpps 3 "_mm_cmpnlt_ps" :tags (:nlt))
 (def-binary-intrinsic /<=-ss float-sse-pack cmpss 3 "_mm_cmpnle_ss" :tags (:nle))
 (def-binary-intrinsic /<=-ps float-sse-pack cmpps 3 "_mm_cmpnle_ps" :tags (:nle))
-#+ecl
-(def-binary-intrinsic />-ss float-sse-pack nil nil "_mm_cmpngt_ss")
-#+ecl
-(def-binary-intrinsic />-ps float-sse-pack nil nil "_mm_cmpngt_ps")
-#+ecl
-(def-binary-intrinsic />=-ss float-sse-pack nil nil "_mm_cmpnge_ss")
-#+ecl
-(def-binary-intrinsic />=-ps float-sse-pack nil nil "_mm_cmpnge_ps")
 
 (def-binary-intrinsic cmpord-ss float-sse-pack cmpss 3 "_mm_cmpord_ss" :tags (:ord))  ; neither is NaN
 (def-binary-intrinsic cmpord-ps float-sse-pack cmpps 3 "_mm_cmpord_ps" :tags (:ord) :commutative t)
@@ -279,16 +240,6 @@
 #+sbcl
 (def-float-set-intrinsic set-sd %set-sd double-float double-reg double-sse-pack movapd)
 
-#+ecl
-(progn
-  (def-intrinsic set-sd (double-float) double-sse-pack "_mm_set_sd")
-  (def-intrinsic set1-pd (double-float) double-sse-pack "_mm_set1_pd")
-
-  (def-intrinsic set-pd (double-float double-float) double-sse-pack "_mm_set_pd")
-  (def-intrinsic setr-pd (double-float double-float) double-sse-pack "_mm_setr_pd")
-
-  (def-intrinsic setzero-pd () double-sse-pack "_mm_setzero_pd"))
-
 ;; Memory
 
 (def-load-intrinsic mem-ref-sd double-sse-pack movsd "_mm_load_sd")
@@ -354,14 +305,6 @@
 (def-binary-intrinsic <-pd double-sse-pack cmppd 3 "_mm_cmplt_pd" :tags (:lt))
 (def-binary-intrinsic <=-sd double-sse-pack cmpsd 3 "_mm_cmple_sd" :tags (:le))
 (def-binary-intrinsic <=-pd double-sse-pack cmppd 3 "_mm_cmple_pd" :tags (:le))
-#+ecl
-(def-binary-intrinsic >-sd double-sse-pack nil nil "_mm_cmpgt_sd")
-#+ecl
-(def-binary-intrinsic >-pd double-sse-pack nil nil "_mm_cmpgt_pd")
-#+ecl
-(def-binary-intrinsic >=-sd double-sse-pack nil nil "_mm_cmpge_sd")
-#+ecl
-(def-binary-intrinsic >=-pd double-sse-pack nil nil "_mm_cmpge_pd")
 
 (def-binary-intrinsic /=-sd double-sse-pack cmpsd 3 "_mm_cmpneq_sd" :tags (:neq))
 (def-binary-intrinsic /=-pd double-sse-pack cmppd 3 "_mm_cmpneq_pd" :tags (:neq) :commutative t)
@@ -369,14 +312,6 @@
 (def-binary-intrinsic /<-pd double-sse-pack cmppd 3 "_mm_cmpnlt_pd" :tags (:nlt))
 (def-binary-intrinsic /<=-sd double-sse-pack cmpsd 3 "_mm_cmpnle_sd" :tags (:nle))
 (def-binary-intrinsic /<=-pd double-sse-pack cmppd 3 "_mm_cmpnle_pd" :tags (:nle))
-#+ecl
-(def-binary-intrinsic />-sd double-sse-pack nil nil "_mm_cmpngt_sd")
-#+ecl
-(def-binary-intrinsic />-pd double-sse-pack nil nil "_mm_cmpngt_pd")
-#+ecl
-(def-binary-intrinsic />=-sd double-sse-pack nil nil "_mm_cmpnge_sd")
-#+ecl
-(def-binary-intrinsic />=-pd double-sse-pack nil nil "_mm_cmpnge_pd")
 
 (def-binary-intrinsic cmpord-sd double-sse-pack cmpsd 3 "_mm_cmpord_sd" :tags (:ord))  ; neither is NaN
 (def-binary-intrinsic cmpord-pd double-sse-pack cmppd 3 "_mm_cmpord_pd" :tags (:ord) :commutative t)
@@ -447,50 +382,6 @@
 
 ;; Initialization
 
-#+ecl
-(progn
-  (def-intrinsic set1-pi8 (fixnum) int-sse-pack "_mm_set1_epi8")
-  (def-intrinsic set1-pi16 (fixnum) int-sse-pack "_mm_set1_epi16")
-  (def-intrinsic set1-pi32 (ext:integer32) int-sse-pack "_mm_set1_epi32")
-  #+x86_64
-  (def-intrinsic set1-pi64 (ext:integer64) int-sse-pack "_mm_set1_epi64x")
-
-  (def-intrinsic set1-pu32 (ext:byte32) int-sse-pack "_mm_set1_epi32")
-  #+x86_64
-  (def-intrinsic set1-pu64 (ext:byte64) int-sse-pack "_mm_set1_epi64x")
-
-  ;;-----
-  (def-intrinsic set-pi8 (fixnum fixnum fixnum fixnum
-                                 fixnum fixnum fixnum fixnum
-                                 fixnum fixnum fixnum fixnum
-                                 fixnum fixnum fixnum fixnum) int-sse-pack "_mm_set_epi8")
-  (def-intrinsic set-pi16 (fixnum fixnum fixnum fixnum
-                                  fixnum fixnum fixnum fixnum) int-sse-pack "_mm_set_epi16")
-  (def-intrinsic set-pi32 (ext:integer32 ext:integer32 ext:integer32 ext:integer32) int-sse-pack "_mm_set_epi32")
-  #+x86_64
-  (def-intrinsic set-pi64 (ext:integer64 ext:integer64) int-sse-pack "_mm_set_epi64x")
-
-  (def-intrinsic set-pu32 (ext:byte32 ext:byte32 ext:byte32 ext:byte32) int-sse-pack "_mm_set_epi32")
-  #+x86_64
-  (def-intrinsic set-pu64 (ext:byte64 ext:byte64) int-sse-pack "_mm_set_epi64x")
-
-  ;;-----
-  (def-intrinsic setr-pi8 (fixnum fixnum fixnum fixnum
-                                  fixnum fixnum fixnum fixnum
-                                  fixnum fixnum fixnum fixnum
-                                  fixnum fixnum fixnum fixnum) int-sse-pack "_mm_setr_epi8")
-  (def-intrinsic setr-pi16 (fixnum fixnum fixnum fixnum
-                                   fixnum fixnum fixnum fixnum) int-sse-pack "_mm_setr_epi16")
-  (def-intrinsic setr-pi32 (ext:integer32 ext:integer32 ext:integer32 ext:integer32) int-sse-pack "_mm_setr_epi32")
-  #+x86_64
-  (def-intrinsic setr-pi64 (ext:integer64 ext:integer64) int-sse-pack "_mm_set_epi64x" :reorder-args t)
-
-  (def-intrinsic setr-pu32 (ext:byte32 ext:byte32 ext:byte32 ext:byte32) int-sse-pack "_mm_setr_epi32")
-  #+x86_64
-  (def-intrinsic setr-pu64 (ext:byte64 ext:byte64) int-sse-pack "_mm_set_epi64x" :reorder-args t)
-
-  ;;-----
-  (def-intrinsic setzero-pi () int-sse-pack "_mm_setzero_si128"))
 
 ;; Memory
 
@@ -510,9 +401,6 @@
 (def-store-intrinsic stream-pi int-sse-pack movntdq "_mm_stream_si128")
 
 ;; Masked move
-
-#+ecl
-(def-mem-intrinsic maskmoveu-pi "char" nil "_mm_maskmoveu_si128" :prefix-args (int-sse-pack int-sse-pack))
 
 #+sbcl
 (progn
@@ -707,13 +595,6 @@
 (def-binary-intrinsic =-pi32 int-sse-pack pcmpeqd 1 "_mm_cmpeq_epi32")
 (def-binary-intrinsic =-pi64 int-sse-pack pcmpeqq 1 "_mm_cmpeq_epi64")
 
-#+ecl
-(def-binary-intrinsic <-pi8  int-sse-pack nil nil "_mm_cmplt_epi8")
-#+ecl
-(def-binary-intrinsic <-pi16 int-sse-pack nil nil "_mm_cmplt_epi16")
-#+ecl
-(def-binary-intrinsic <-pi32 int-sse-pack nil nil "_mm_cmplt_epi32")
-
 (def-binary-intrinsic >-pi8  int-sse-pack pcmpgtb 1 "_mm_cmpgt_epi8")
 (def-binary-intrinsic >-pi16 int-sse-pack pcmpgtw 1 "_mm_cmpgt_epi16")
 (def-binary-intrinsic >-pi32 int-sse-pack pcmpgtd 1 "_mm_cmpgt_epi32")
@@ -790,15 +671,6 @@
     (:policy :fast-safe)
     (:generator 1
       (inst movd dst arg))))
-
-#+ecl
-(progn
-  (def-intrinsic convert-si32-to-pi (ext:integer32) int-sse-pack "_mm_cvtsi32_si128")
-  (def-intrinsic convert-su32-to-pi (ext:byte32) int-sse-pack "_mm_cvtsi32_si128")
-  #+x86_64
-  (def-intrinsic convert-si64-to-pi (ext:integer64) int-sse-pack #-msvc "_mm_cvtsi64_si128" #+msvc "_mm_cvtsi64x_si128")
-  #+x86_64
-  (def-intrinsic convert-su64-to-pi (ext:byte64) int-sse-pack #-msvc "_mm_cvtsi64_si128" #+msvc "_mm_cvtsi64x_si128"))
 
 (def-cvt-to-int32-intrinsic convert-pi-to-si32 (signed-byte 32) movd 1 "_mm_cvtsi128_si32"
                             :arg-type int-sse-pack)

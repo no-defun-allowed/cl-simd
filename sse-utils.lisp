@@ -59,8 +59,7 @@
 (defmacro with-saved-mxcsr (&body code)
   (let ((v (gensym "CSR")))
     `(let ((,v (cpu-mxcsr)))
-       (declare (type (unsigned-byte 32) ,v)
-                #+ecl (:read-only ,v))
+       (declare (type (unsigned-byte 32) ,v))
        (unwind-protect (progn ,@code)
          (%set-cpu-mxcsr ,v)))))
 

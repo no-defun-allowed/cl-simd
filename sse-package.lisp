@@ -5,17 +5,12 @@
 ;;; This file defines a package for all SSE intrinsics.
 ;;;
 
-#+ecl
-(eval-when (:load-toplevel)
-  (require 'cmp))
 
-#+sbcl
+
 (pushnew :SSE2 *features*)
 
 (defpackage #:SSE
-  #+sbcl
   (:use #:COMMON-LISP #:SB-C #:SB-VM #:SB-INT #:SB-KERNEL #:SB-ASSEM #:SB-EXT #:SB-SYS)
-  #+sbcl
   (:import-from #:SB-VM
                 #:SINGLE-REG #:DOUBLE-REG
                 #:INT-SSE-REG #:SINGLE-SSE-REG #:DOUBLE-SSE-REG #:SSE-REG
@@ -26,7 +21,6 @@
                 #:SAP-REG #:DESCRIPTOR-REG #:ANY-REG #:TAGGED-NUM
                 #:RAX-OFFSET #:RDI-OFFSET #:RBP-TN #:FRAME-BYTE-OFFSET
                 #:MAKE-EA #:REG-IN-SIZE #:LOADW)
-  #+sbcl
   (:import-from #:SB-C
                 #:SPLICE-FUN-ARGS #:EXTRACT-FUN-ARGS
                 #:%DEFTRANSFORM #:DX-SAFE
@@ -38,20 +32,9 @@
                 #:LEXENV-POLICY #:NODE-LEXENV #:POLICY
                 #:CAST-P #:CAST-VALUE #:DELETE-FILTER
                 #:FIND-SAETP #:FIND-SAETP-BY-CTYPE)
-  #+sbcl
-  (:import-from #:SB-IMPL
+  (:import-from #:SB-VM
                 #:%ARRAY-ROW-MAJOR-INDEX)
-  #+sbcl
   (:shadow #:INT-SSE-PACK #:FLOAT-SSE-PACK #:DOUBLE-SSE-PACK)
-  #+ecl
-  (:use #:COMMON-LISP #:FFI)
-  #+ecl
-  (:import-from #:EXT
-                #:INT-SSE-PACK #:FLOAT-SSE-PACK #:DOUBLE-SSE-PACK
-                #:SSE-PACK-P #:ARRAY-ELEMENT-TYPE-BYTE-SIZE
-                #:*SSE-PACK-PRINT-MODE*)
-  #+ecl
-  (:shadow #:SSE-PACK)
   ;; Common exports:
   (:export #:SSE-PACK #:SSE-PACK-P
            #:INT-SSE-PACK #:FLOAT-SSE-PACK #:DOUBLE-SSE-PACK
@@ -63,4 +46,3 @@
            #:SET1-PD #:SET-PD #:SETR-PD #:SETZERO-PD
            #:0-PI #:TRUE-PI #:FALSE-PI #:SETZERO-PI
            #:CPU-MXCSR #:CPU-MXCSR-BITS #:WITH-SAVED-MXCSR #:CPU-CONFIGURE-ROUNDING))
-

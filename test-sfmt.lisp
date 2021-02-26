@@ -2,6 +2,7 @@
 ;;;
 ;;; Dumbly translated from C code at: http://github.com/jj1bdx/sfmt-extstate
 
+#+(or)
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (require :cl-simd))
 
@@ -105,11 +106,8 @@
          do (twist (- +pos1+ +n+))))))
 
 (defun gen-rand-array (output buffer)
-  (declare (optimize (speed 3) #+ecl (safety 0) (debug 0)
-                     #+sbcl (sb-c::insert-array-bounds-checks 0))
+  (declare (optimize (speed 1) (debug 3))
            (type uint32-vector buffer output))
-  #+ecl (check-type buffer uint32-vector)
-  #+ecl (check-type output uint32-vector)
   (assert (= (array-total-size buffer) (* +n+ 4)))
   (let ((mask (set-pu32 +msk4+ +msk3+ +msk2+ +msk1+))
         (size (floor (array-total-size output) 4))
@@ -130,10 +128,6 @@
          do (twist output buffer 0 output (- +pos1+ +n+)))
       (loop for i fixnum from +n+ below (- size +n+)
          do (twist output output +n+ output (- +pos1+ +n+)))
-      #+ ()
-      (loop for j fixnum from 0 below (- (* 2 +n+) size)
-         do (setf (sfmt-aref buffer j)
-                  (sfmt-aref output (+ j (the fixnum (- size +n+))))))
       (loop
          for i fixnum from (- size +n+) below size
          for j fixnum from 0 below +n+ ;(max 0 (- (* 2 +n+) size))
